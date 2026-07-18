@@ -12,40 +12,76 @@
   </script>
   <link crossorigin="" href="./assets/index.css" rel="stylesheet"/>
   <style>
-    .lessons-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-      transition: all 0.3s ease;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .lessons-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
-    }
-    .lessons-btn svg {
-      width: 18px;
-      height: 18px;
+    /* Lesson button injection styles - will be added dynamically */
+    #lessons-button-container {
+      display: none;
     }
   </style>
-  <a href="/learn" class="lessons-btn">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-    </svg>
-    Lessons
-  </a>
+  
+  <!-- Lessons button will be injected by JavaScript -->
+  <div id="lessons-button-container"></div>
+  
+  <script>
+    // Inject Lessons button after React app loads, matching its button style
+    function injectLessonsButton() {
+      // Find the button container in the React app
+      const checkAndInject = () => {
+        // Look for the button container - it contains buttons with w-full and bg-white classes
+        const buttons = document.querySelectorAll('button, a[href="/"]');
+        let foundContainer = null;
+        
+        for (const btn of buttons) {
+          const parent = btn.parentElement;
+          if (parent && parent.querySelectorAll('button, a').length >= 3) {
+            foundContainer = parent;
+            break;
+          }
+        }
+        
+        // Alternative: Look for div with space-y-2 class (button container)
+        const containers = document.querySelectorAll('div');
+        for (const div of containers) {
+          if (div.className.includes('space-y') && div.querySelectorAll('button').length >= 3) {
+            foundContainer = div;
+            break;
+          }
+        }
+        
+        if (foundContainer) {
+          // Create lessons button matching the app's secondary button style
+          const lessonsBtn = document.createElement('a');
+          lessonsBtn.href = '/learn';
+          lessonsBtn.className = 'w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2';
+          lessonsBtn.style.cssText = 'text-decoration: none;';
+          lessonsBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span>Lessons</span>
+          `;
+          
+          // Check if lessons button already exists
+          if (!foundContainer.querySelector('a[href="/learn"]')) {
+            foundContainer.appendChild(lessonsBtn);
+            console.log('Lessons button injected successfully!');
+          }
+        }
+      };
+      
+      // Check immediately and then periodically
+      if (document.readyState === 'complete') {
+        setTimeout(checkAndInject, 1000);
+      } else {
+        window.addEventListener('load', () => setTimeout(checkAndInject, 1000));
+      }
+      
+      // Also try again after a delay to catch React rendering
+      setTimeout(checkAndInject, 2000);
+      setTimeout(checkAndInject, 3000);
+    }
+    
+    injectLessonsButton();
+  </script>
   <script type="module">
    // Page tracking removed
   </script>
