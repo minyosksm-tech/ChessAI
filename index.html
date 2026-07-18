@@ -12,61 +12,31 @@
   </script>
   <link crossorigin="" href="./assets/index.css" rel="stylesheet"/>
   <script type="module">
-   if (window.self === window.top) {
-  let lastPath = "";
-  function getPageNameFromPath(path) {
-    const segments = path.split("/").filter(Boolean);
-    return segments[0] || null;
-  }
-  function trackPageView() {
-    const path = window.location.pathname;
-    if (path === lastPath) return;
-    lastPath = path;
-    const pageName = getPageNameFromPath(path) || "home";
-    const appId = "69ac89ec09d6836c4d73fa7d";
-    if (!appId) return;
-    fetch(`/api/app-logs/${appId}/log-user-in-app/${pageName}`, {
-      method: "POST",
-    }).catch(() => {});
-  }
-  const originalPushState = history.pushState.bind(history);
-  history.pushState = function (...args) {
-    originalPushState(...args);
-    trackPageView();
-  };
-  const originalReplaceState = history.replaceState.bind(history);
-  history.replaceState = function (...args) {
-    originalReplaceState(...args);
-    trackPageView();
-  };
-  window.addEventListener("popstate", trackPageView);
-  trackPageView();
-}
+   // Page tracking removed
   </script>
   <meta content="Your personalized Duolingo-style guide to mastering chess and achieving a 2000 ELO rating in 3-10 days. Features AI-powered lessons, interactive puzzles, bot matches, and curated famous games." name="description"/>
   <meta content="Chess Grandmaster Path" property="og:title"/>
   <meta content="Your personalized Duolingo-style guide to mastering chess and achieving a 2000 ELO rating in 3-10 days. Features AI-powered lessons, interactive puzzles, bot matches, and curated famous games." property="og:description"/>
-  <meta content="https://swinging-chess-master-go.base44.app" property="og:url"/>
+  <meta content="https://chess-grandmaster-path.vercel.app" property="og:url"/>
   <meta content="website" property="og:type"/>
   <meta content="Chess Grandmaster Path" property="og:site_name"/>
   <meta content="Chess Grandmaster Path" name="twitter:title"/>
   <meta content="Your personalized Duolingo-style guide to mastering chess and achieving a 2000 ELO rating in 3-10 days. Features AI-powered lessons, interactive puzzles, bot matches, and curated famous games." name="twitter:description"/>
   <meta content="summary_large_image" name="twitter:card"/>
-  <meta content="https://swinging-chess-master-go.base44.app" name="twitter:url"/>
+  <meta content="https://chess-grandmaster-path.vercel.app" name="twitter:url"/>
   <meta content="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/render/image/public/base44-prod/public/69ac89ec09d6836c4d73fa7d/f1fda4f32_logo.png?width=1200&amp;height=630&amp;resize=contain" property="og:image"/>
   <meta content="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/render/image/public/base44-prod/public/69ac89ec09d6836c4d73fa7d/f1fda4f32_logo.png?width=1200&amp;height=630&amp;resize=contain" name="twitter:image"/>
   <meta content="yes" name="mobile-web-app-capable"/>
   <meta content="black" name="apple-mobile-web-app-status-bar-style"/>
   <meta content="Chess Grandmaster Path" name="apple-mobile-web-app-title"/>
-  <link href="https://swinging-chess-master-go.base44.app" rel="canonical"/>
-  <script data-seo-source="builder" type="application/ld+json">
-   {"name": "Chess Grandmaster Path", "@context": "https://schema.org", "@type": "WebSite", "url": "https://swinging-chess-master-go.base44.app"}
+  <link href="https://chess-grandmaster-path.vercel.app" rel="canonical"/>
+  <script type="application/ld+json">
+   {"name": "Chess Grandmaster Path", "@context": "https://schema.org", "@type": "WebSite", "url": "https://chess-grandmaster-path.vercel.app"}
   </script>
-  <script data-seo-source="builder" type="application/ld+json">
-   {"name": "Chess Grandmaster Path", "logo": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69ac89ec09d6836c4d73fa7d/f1fda4f32_logo.png", "@context": "https://schema.org", "@type": "Organization", "url": "https://swinging-chess-master-go.base44.app"}
+  <script type="application/ld+json">
+   {"name": "Chess Grandmaster Path", "logo": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69ac89ec09d6836c4d73fa7d/f1fda4f32_logo.png", "@context": "https://schema.org", "@type": "Organization", "url": "https://chess-grandmaster-path.vercel.app"}
   </script>
-  <script async="true" data-app-id="69ac89ec09d6836c4d73fa7d" data-platform-url="https://app.base44.com" src="/static/js/badge.js">
-  </script>
+  <!-- Base44 watermark removed -->
  </head>
  <body>
   <div id="root">

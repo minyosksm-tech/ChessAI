@@ -29,3 +29,4 @@ yarn-error.log*
 # Cache
 .cache/
 *.tsbuildinfo
+.vercel
