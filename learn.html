@@ -5,34 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Learn Chess - Chess AI</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./assets/index.css">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    .lesson-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      background-color: #0a0a0a; 
+      color: #fafafa;
+    }
+    .lesson-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
     .category-btn.active { transform: scale(1.05); }
-    .lesson-item:hover { background-color: #f3f4f6; }
-    .back-btn:hover { background-color: #e5e7eb; }
-    .tip-box { border-left: 4px solid #3b82f6; background: linear-gradient(to right, #eff6ff, white); }
+    .lesson-item:hover { background-color: #1c1c1c; }
+    .back-btn:hover { background-color: #1c1c1c; }
+    .tip-box { border-left: 4px solid #3b82f6; background: linear-gradient(to right, #1e3a5f, #0a0a0a); }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="min-h-screen">
   <div id="app" class="max-w-md mx-auto py-6 px-4">
     <!-- Back Button -->
-    <button onclick="goBack()" class="back-btn flex items-center text-gray-500 hover:text-gray-700 mb-4 transition-colors">
+    <button onclick="goBack()" class="back-btn flex items-center text-gray-400 hover:text-white mb-6 transition-colors">
       <span>← Back</span>
-      <span class="ml-2 text-sm">to Chess AI</span>
+      <span class="ml-2 text-sm text-gray-500">to Chess AI</span>
     </button>
     
     <!-- Header -->
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Learn Chess</h1>
-    <p class="text-gray-500 mb-6">Master chess from beginner to Grandmaster</p>
+    <h1 class="text-3xl font-bold mb-2">Learn Chess</h1>
+    <p class="text-gray-400 mb-6">Master chess from beginner to Grandmaster</p>
     
     <!-- Category Filter -->
     <div class="flex flex-wrap gap-2 mb-6" id="categoryFilters">
-      <button onclick="filterCategory('all')" class="category-btn active px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-medium transition-all" data-category="all">All</button>
-      <button onclick="filterCategory('beginner')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="beginner">Beginner</button>
-      <button onclick="filterCategory('intermediate')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="intermediate">Intermediate</button>
-      <button onclick="filterCategory('advanced')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="advanced">Advanced</button>
-      <button onclick="filterCategory('master')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="master">Master</button>
+      <button onclick="filterCategory('all')" class="category-btn active px-4 py-2 rounded-lg bg-white text-black text-sm font-medium transition-all" data-category="all">All</button>
+      <button onclick="filterCategory('beginner')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="beginner">Beginner</button>
+      <button onclick="filterCategory('intermediate')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="intermediate">Intermediate</button>
+      <button onclick="filterCategory('advanced')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="advanced">Advanced</button>
+      <button onclick="filterCategory('master')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="master">Master</button>
     </div>
     
     <!-- Lessons List -->
@@ -40,10 +45,10 @@
   </div>
   
   <!-- Lesson Modal -->
-  <div id="lessonModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+  <div id="lessonModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
+    <div class="bg-neutral-900 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-zinc-800">
       <div class="p-6">
-        <button onclick="closeModal()" class="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center">
+        <button onclick="closeModal()" class="mb-4 text-sm text-gray-400 hover:text-white flex items-center">
           <span>← Back to modules</span>
         </button>
         <div id="modalContent"></div>
@@ -250,31 +255,31 @@
       
       const container = document.getElementById('lessonsList');
       container.innerHTML = filtered.map(lesson => `
-        <div class="lesson-card bg-white rounded-lg p-4 border border-gray-200 transition-all duration-200 cursor-pointer" onclick="openModule('${lesson.id}')">
+        <div class="lesson-card bg-neutral-900 rounded-lg p-4 border border-zinc-800 transition-all duration-200 cursor-pointer" onclick="openModule('${lesson.id}')">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center">
               <span class="text-3xl mr-3">${lesson.icon}</span>
               <div>
-                <h3 class="font-semibold text-gray-900">${lesson.title}</h3>
+                <h3 class="font-semibold text-white">${lesson.title}</h3>
                 <p class="text-xs text-gray-500">${lesson.level} • ${lesson.duration}</p>
               </div>
             </div>
             <span class="text-xs px-2 py-1 rounded-full ${
-              lesson.category === 'beginner' ? 'bg-green-100 text-green-700' :
-              lesson.category === 'intermediate' ? 'bg-blue-100 text-blue-700' :
-              lesson.category === 'advanced' ? 'bg-purple-100 text-purple-700' :
-              'bg-red-100 text-red-700'
+              lesson.category === 'beginner' ? 'bg-green-900/50 text-green-400' :
+              lesson.category === 'intermediate' ? 'bg-blue-900/50 text-blue-400' :
+              lesson.category === 'advanced' ? 'bg-purple-900/50 text-purple-400' :
+              'bg-red-900/50 text-red-400'
             }">${lesson.lessons.length} lessons</span>
           </div>
           <div class="space-y-2 mt-3">
             ${lesson.lessons.slice(0, 3).map(l => `
-              <div class="lesson-item px-3 py-2 rounded bg-gray-50 text-sm text-gray-700 flex items-center justify-between">
+              <div class="lesson-item px-3 py-2 rounded bg-neutral-800 text-sm text-gray-300 flex items-center justify-between">
                 <span>${l.title}</span>
-                <span class="text-gray-400">→</span>
+                <span class="text-gray-500">→</span>
               </div>
             `).join('')}
           </div>
-          ${lesson.lessons.length > 3 ? `<p class="text-xs text-gray-400 mt-2 text-center">+ ${lesson.lessons.length - 3} more lessons</p>` : ''}
+          ${lesson.lessons.length > 3 ? `<p class="text-xs text-gray-500 mt-2 text-center">+ ${lesson.lessons.length - 3} more lessons</p>` : ''}
         </div>
       `).join('');
     }
@@ -286,14 +291,14 @@
       currentModule = module;
       const container = document.getElementById('modalContent');
       container.innerHTML = `
-        <h2 class="text-xl font-bold text-gray-900 mb-2">${module.title}</h2>
-        <p class="text-gray-500 text-sm mb-4">${module.level} • ${module.duration}</p>
+        <h2 class="text-xl font-bold text-white mb-2">${module.title}</h2>
+        <p class="text-gray-400 text-sm mb-4">${module.level} • ${module.duration}</p>
         <div class="space-y-3">
           ${module.lessons.map((lesson, idx) => `
-            <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-blue-300 transition-colors" onclick="openLesson('${lesson.id}')">
+            <div class="border border-zinc-700 rounded-lg p-4 cursor-pointer hover:border-zinc-500 transition-colors" onclick="openLesson('${lesson.id}')">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-900">${idx + 1}. ${lesson.title}</span>
-                <span class="text-gray-400">→</span>
+                <span class="font-medium text-gray-200">${idx + 1}. ${lesson.title}</span>
+                <span class="text-gray-500">→</span>
               </div>
             </div>
           `).join('')}
@@ -313,20 +318,20 @@
       
       const container = document.getElementById('modalContent');
       container.innerHTML = `
-        <button onclick="openModule('${currentModule.id}')" class="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center">
+        <button onclick="openModule('${currentModule.id}')" class="mb-4 text-sm text-gray-400 hover:text-white flex items-center">
           <span>← Back to ${currentModule.title}</span>
         </button>
-        <h2 class="text-xl font-bold text-gray-900 mb-4">${lesson.title}</h2>
-        <p class="text-gray-600 mb-6 leading-relaxed">${lesson.content}</p>
+        <h2 class="text-xl font-bold text-white mb-4">${lesson.title}</h2>
+        <p class="text-gray-300 mb-6 leading-relaxed">${lesson.content}</p>
         <div class="tip-box p-4 rounded mb-6">
-          <p class="text-blue-800 text-sm"><span class="mr-2">💡</span>${lesson.tip}</p>
+          <p class="text-blue-400 text-sm"><span class="mr-2">💡</span>${lesson.tip}</p>
         </div>
         ${nextLesson ? `
-          <button onclick="openLesson('${nextLesson.id}')" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">
+          <button onclick="openLesson('${nextLesson.id}')" class="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-100 transition-colors">
             Next: ${nextLesson.title} →
           </button>
         ` : `
-          <button onclick="openModule('${currentModule.id}')" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">
+          <button onclick="openModule('${currentModule.id}')" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-500 transition-colors">
             ✓ Module Complete - Back to Lessons
           </button>
         `}
