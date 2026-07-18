@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn Chess - Chess AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .lesson-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .category-btn.active { transform: scale(1.05); }
+    .lesson-item:hover { background-color: #f3f4f6; }
+    .back-btn:hover { background-color: #e5e7eb; }
+    .tip-box { border-left: 4px solid #3b82f6; background: linear-gradient(to right, #eff6ff, white); }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div id="app" class="max-w-md mx-auto py-6 px-4">
+    <!-- Back Button -->
+    <button onclick="goBack()" class="back-btn flex items-center text-gray-500 hover:text-gray-700 mb-4 transition-colors">
+      <span>← Back</span>
+      <span class="ml-2 text-sm">to Chess AI</span>
+    </button>
+    
+    <!-- Header -->
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Learn Chess</h1>
+    <p class="text-gray-500 mb-6">Master chess from beginner to Grandmaster</p>
+    
+    <!-- Category Filter -->
+    <div class="flex flex-wrap gap-2 mb-6" id="categoryFilters">
+      <button onclick="filterCategory('all')" class="category-btn active px-4 py-2 rounded-full bg-gray-900 text-white text-sm font-medium transition-all" data-category="all">All</button>
+      <button onclick="filterCategory('beginner')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="beginner">Beginner</button>
+      <button onclick="filterCategory('intermediate')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="intermediate">Intermediate</button>
+      <button onclick="filterCategory('advanced')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="advanced">Advanced</button>
+      <button onclick="filterCategory('master')" class="category-btn px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-700 text-sm font-medium transition-all hover:border-gray-400" data-category="master">Master</button>
+    </div>
+    
+    <!-- Lessons List -->
+    <div id="lessonsList" class="space-y-4"></div>
+  </div>
+  
+  <!-- Lesson Modal -->
+  <div id="lessonModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <button onclick="closeModal()" class="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center">
+          <span>← Back to modules</span>
+        </button>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const lessonsData = [
+      {
+        id: "beginner-1",
+        title: "How Pieces Move",
+        category: "beginner",
+        level: "Beginner",
+        duration: "10 min",
+        icon: "♟",
+        lessons: [
+          { id: "pawn", title: "The Pawn", content: "Pawns move forward one square at a time, but capture diagonally. On their first move, they can move two squares. They promote when reaching the opposite end.", tip: "Always try to control the center with your pawns early in the game." },
+          { id: "knight", title: "The Knight", content: "Knights move in an 'L' shape: two squares in one direction, then one square perpendicular. They can jump over other pieces.", tip: "Knights are strongest in the center of the board." },
+          { id: "bishop", title: "The Bishop", content: "Bishops move diagonally any number of squares. Each player starts with two bishops - one controlling light squares, one controlling dark squares.", tip: "Bishops are most powerful in open positions with long diagonals." },
+          { id: "rook", title: "The Rook", content: "Rooks move horizontally or vertically any number of squares. They are powerful pieces that should be developed in the opening.", tip: "Connect your rooks by clearing the back rank." },
+          { id: "queen", title: "The Queen", content: "The queen combines the powers of rook and bishop, moving any number of squares in any direction. She's your most powerful piece.", tip: "Don't bring your queen out too early - it can be chased by minor pieces." },
+          { id: "king", title: "The King", content: "The king moves one square in any direction. Though slow, protecting your king is the ultimate goal of the game.", tip: "Castle early to get your king to safety." }
+        ]
+      },
+      {
+        id: "beginner-2",
+        title: "Special Moves",
+        category: "beginner",
+        level: "Beginner",
+        duration: "8 min",
+        icon: "♚",
+        lessons: [
+          { id: "castling", title: "Castling", content: "Castling moves your king two squares toward a rook, then the rook jumps over the king. Requirements: neither piece moved before, no pieces between them, king not in check.", tip: "Castle as soon as possible - it protects your king and activates your rook." },
+          { id: "en-passant", title: "En Passant", content: "If an enemy pawn moves two squares and lands beside your pawn, you can capture it diagonally as if it moved only one square.", tip: "This capture only works immediately after the double pawn move." },
+          { id: "promotion", title: "Pawn Promotion", content: "When a pawn reaches the opposite end of the board, it can be promoted to any piece (almost always a queen for maximum power).", tip: "Always push your passed pawns - promotion is a major advantage." }
+        ]
+      },
+      {
+        id: "beginner-3",
+        title: "Check & Checkmate",
+        category: "beginner",
+        level: "Beginner",
+        duration: "12 min",
+        icon: "⚔",
+        lessons: [
+          { id: "check", title: "What is Check?", content: "Your king is in check when an enemy piece can capture it on their next move. You must respond to check - you cannot ignore it.", tip: "Always look for checks when planning your moves." },
+          { id: "checkmate", title: "Checkmate", content: "Checkmate occurs when your king is in check and you have no legal moves to escape. The game ends immediately.", tip: "The goal is checkmate - always aim to trap your opponent's king." },
+          { id: "escape", title: "Escaping Check", content: "Three ways to escape check: 1) Move the king, 2) Block the check, 3) Capture the checking piece.", tip: "First determine if you can move the king, then look for other options." }
+        ]
+      },
+      {
+        id: "intermediate-1",
+        title: "Opening Principles",
+        category: "intermediate",
+        level: "Intermediate",
+        duration: "15 min",
+        icon: "🏰",
+        lessons: [
+          { id: "center", title: "Control the Center", content: "The center (d4, e4, d5, e5) is the most important area. Controlling it gives your pieces maximum mobility and freedom.", tip: "Play 1.e4 or 1.d4 to immediately fight for the center." },
+          { id: "develop", title: "Develop Your Pieces", content: "Bring knights and bishops out early. Each piece should be moved only once in the opening if possible.", tip: "Don't move the same piece twice in the opening unless necessary." },
+          { id: "safety", title: "King Safety", content: "Castle early to protect your king. An exposed king is vulnerable to quick attacks and tactical shots.", tip: "If you can't castle, move pawns in front of your king for protection." },
+          { id: "hang", title: "Don't Hang Pieces", content: "Never leave a piece undefended that can be captured. Always check if your move allows the opponent to take one of your pieces.", tip: "Before moving, ask: 'Can my opponent capture anything after this move?'" }
+        ]
+      },
+      {
+        id: "intermediate-2",
+        title: "Tactics Basics",
+        category: "intermediate",
+        level: "Intermediate",
+        duration: "20 min",
+        icon: "⚡",
+        lessons: [
+          { id: "fork", title: "The Fork", content: "A fork attacks two enemy pieces at once, forcing a difficult choice. Knights are excellent for forking enemy pieces.", tip: "Look for moves that attack multiple enemy pieces." },
+          { id: "pin", title: "The Pin", content: "A pin immobilizes an enemy piece because moving it would expose a more valuable piece behind it to capture.", tip: "Pins are powerful - a pinned piece often can't move without losing material." },
+          { id: "skewer", title: "The Skewer", content: "A skewer forces a valuable piece to move, exposing a less valuable piece behind it for capture.", tip: "Attack with your most valuable piece first." },
+          { id: "discovered", title: "Discovered Attack", content: "Moving one piece can reveal another piece behind it attacking an enemy piece. Very powerful when combined with a check.", tip: "Always consider what pieces are behind the one you're moving." }
+        ]
+      },
+      {
+        id: "intermediate-3",
+        title: "Endgame Essentials",
+        category: "intermediate",
+        level: "Intermediate",
+        duration: "18 min",
+        icon: "👑",
+        lessons: [
+          { id: "kp", title: "King and Pawn vs King", content: "The key is to get your pawn to the sixth rank, then bring your king in front of it to support promotion.", tip: "Always try to get your king in front of your passed pawn." },
+          { id: "opp", title: "The Opposition", content: "When kings face each other with an odd number of squares between them, the player who is NOT to move has the advantage.", tip: "Use opposition to push your opponent's king to the edge of the board." },
+          { id: "rook-end", title: "Basic Rook Endgames", content: "The defending king should stay in front of the pawn. The attacking side needs to create a breakthrough.", tip: "Rooks work best behind passed pawns - support them from behind." }
+        ]
+      },
+      {
+        id: "advanced-1",
+        title: "Positional Play",
+        category: "advanced",
+        level: "Advanced",
+        duration: "25 min",
+        icon: "🎯",
+        lessons: [
+          { id: "space", title: "Space Advantage", content: "Having more space restricts your opponent's pieces and limits their options. Expand your territory gradually.", tip: "Space advantage often converts to tactical opportunities." },
+          { id: "weak", title: "Weak Squares", content: "Squares that cannot be defended by pawns are weak. Control these outposts for long-term advantage.", tip: "Knights are best on outpost squares - weak squares they can occupy and defend." },
+          { id: "bishop-gb", title: "Good vs Bad Bishops", content: "A bishop is 'good' if it controls many squares and 'bad' if it's blocked by its own pawns.", tip: "Keep your pawns on the same color squares as your bishop to avoid blocking it." },
+          { id: "prop", title: "Prophylaxis", content: "Prevent your opponent's plans before executing your own. Ask: 'What does my opponent want to do?'", tip: "The best move often prevents your opponent's best move." }
+        ]
+      },
+      {
+        id: "advanced-2",
+        title: "Attack Patterns",
+        category: "advanced",
+        level: "Advanced",
+        duration: "22 min",
+        icon: "⚔",
+        lessons: [
+          { id: "minor", title: "Minor Piece Attack", content: "Knights and bishops can create strong attacks on the enemy king, especially when working together harmoniously.", tip: "Two minor pieces in attacking position can be as deadly as a queen." },
+          { id: "storm", title: "Pawn Storm", content: "Advancing pawns toward the enemy king can create weaknesses and entry points for your pieces.", tip: "Pawn storms are most effective after castling on the same side." },
+          { id: "sac", title: "Positional Sacrifices", content: "Sometimes giving up material creates long-term positional advantages like open lines, king safety, or initiative.", tip: "Material isn't everything - activity and king safety matter too." }
+        ]
+      },
+      {
+        id: "advanced-3",
+        title: "Deep Calculation",
+        category: "advanced",
+        level: "Advanced",
+        duration: "20 min",
+        icon: "🧠",
+        lessons: [
+          { id: "cand", title: "Candidate Moves", content: "When calculating, first identify all plausible moves (candidates), then analyze each one deeply.", tip: "Don't waste time analyzing bad moves - focus on 2-3 best candidates." },
+          { id: "forcing", title: "Forcing Moves", content: "Checks, captures, and threats force the opponent's response and make calculation easier.", tip: "Start your calculations with forcing moves." },
+          { id: "verif", title: "Verification", content: "After finding a move, verify it's the best by checking alternatives. Did you miss something better?", tip: "Always ask: 'Is there a better move?' before committing." }
+        ]
+      },
+      {
+        id: "master-1",
+        title: "Master Openings",
+        category: "master",
+        level: "Master",
+        duration: "30 min",
+        icon: "📚",
+        lessons: [
+          { id: "e4", title: "1.e4 Openings", content: "1.e4 leads to sharp, tactical play. Main lines include the Ruy Lopez, Italian Game, Sicilian Defense, and King's Gambit.", tip: "1.e4 fights for central space and opens lines for queen and bishop." },
+          { id: "d4", title: "1.d4 Openings", content: "1.d4 leads to strategic play. Main lines include the Queen's Gambit, Nimzo-Indian, and King's Indian Defense.", tip: "1.d4 builds a solid pawn center and prepares piece development." },
+          { id: "flank", title: "Flank Openings", content: "1.c4 (English) and 1.b3 are flexible alternatives that avoid main theory early.", tip: "Flank openings can transpose to main lines or lead to unique positions." }
+        ]
+      },
+      {
+        id: "master-2",
+        title: "Master Endgames",
+        category: "master",
+        level: "Master",
+        duration: "35 min",
+        icon: "🏆",
+        lessons: [
+          { id: "lucena", title: "Advanced Rook Endgames", content: "Key positions include Lucena and Philidor defenses. Understanding these is essential for master-level play.", tip: "The Lucena position can be won by 'checking distance' - bridge building technique." },
+          { id: "bn", title: "Bishop vs Knight", content: "Bishops excel in open positions with long diagonals. Knights excel in blocked positions and outpost squares.", tip: "Evaluate which piece suits the position before trading." },
+          { id: "qend", title: "Queen Endgames", content: "Queen vs pawn on the 7th rank requires precise technique. The defending king must stay in front.", tip: "Queen vs lone king is always winning - mate in at most 10 moves." }
+        ]
+      },
+      {
+        id: "master-3",
+        title: "Psychology & Time",
+        category: "master",
+        level: "Master",
+        duration: "25 min",
+        icon: "⏱",
+        lessons: [
+          { id: "time", title: "Time Pressure", content: "When low on time, simplify to safer positions. Avoid complex tactics you might miscalculate.", tip: "Use increments wisely - increment at move 30 helps you reach move 40." },
+          { id: "tilt", title: "Emotional Control", content: "Avoid tilting after mistakes. A lost position can still be saved; a lost mindset cannot.", tip: "Take breaks between games to reset your mental state." },
+          { id: "prep", title: "Opening Preparation", content: "At master level, deep opening knowledge is essential. Prepare specific lines for expected opponents.", tip: "Know the ideas behind moves, not just the move order." }
+        ]
+      }
+    ];
+
+    let currentCategory = 'all';
+    let currentModule = null;
+
+    function goBack() {
+      window.location.href = '/';
+    }
+
+    function filterCategory(category) {
+      currentCategory = category;
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        if (btn.dataset.category === category) {
+          btn.classList.add('active');
+          btn.classList.remove('bg-white', 'border', 'border-gray-300', 'text-gray-700');
+          if (category === 'beginner') btn.classList.add('bg-green-600', 'text-white');
+          else if (category === 'intermediate') btn.classList.add('bg-blue-600', 'text-white');
+          else if (category === 'advanced') btn.classList.add('bg-purple-600', 'text-white');
+          else if (category === 'master') btn.classList.add('bg-red-600', 'text-white');
+          else btn.classList.add('bg-gray-900', 'text-white');
+        } else {
+          btn.classList.remove('active', 'bg-green-600', 'bg-blue-600', 'bg-purple-600', 'bg-red-600', 'bg-gray-900', 'text-white');
+          btn.classList.add('bg-white', 'border', 'border-gray-300', 'text-gray-700');
+        }
+      });
+      renderLessons();
+    }
+
+    function renderLessons() {
+      const filtered = currentCategory === 'all' 
+        ? lessonsData 
+        : lessonsData.filter(l => l.category === currentCategory);
+      
+      const container = document.getElementById('lessonsList');
+      container.innerHTML = filtered.map(lesson => `
+        <div class="lesson-card bg-white rounded-lg p-4 border border-gray-200 transition-all duration-200 cursor-pointer" onclick="openModule('${lesson.id}')">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center">
+              <span class="text-3xl mr-3">${lesson.icon}</span>
+              <div>
+                <h3 class="font-semibold text-gray-900">${lesson.title}</h3>
+                <p class="text-xs text-gray-500">${lesson.level} • ${lesson.duration}</p>
+              </div>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full ${
+              lesson.category === 'beginner' ? 'bg-green-100 text-green-700' :
+              lesson.category === 'intermediate' ? 'bg-blue-100 text-blue-700' :
+              lesson.category === 'advanced' ? 'bg-purple-100 text-purple-700' :
+              'bg-red-100 text-red-700'
+            }">${lesson.lessons.length} lessons</span>
+          </div>
+          <div class="space-y-2 mt-3">
+            ${lesson.lessons.slice(0, 3).map(l => `
+              <div class="lesson-item px-3 py-2 rounded bg-gray-50 text-sm text-gray-700 flex items-center justify-between">
+                <span>${l.title}</span>
+                <span class="text-gray-400">→</span>
+              </div>
+            `).join('')}
+          </div>
+          ${lesson.lessons.length > 3 ? `<p class="text-xs text-gray-400 mt-2 text-center">+ ${lesson.lessons.length - 3} more lessons</p>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function openModule(moduleId) {
+      const module = lessonsData.find(m => m.id === moduleId);
+      if (!module) return;
+      
+      currentModule = module;
+      const container = document.getElementById('modalContent');
+      container.innerHTML = `
+        <h2 class="text-xl font-bold text-gray-900 mb-2">${module.title}</h2>
+        <p class="text-gray-500 text-sm mb-4">${module.level} • ${module.duration}</p>
+        <div class="space-y-3">
+          ${module.lessons.map((lesson, idx) => `
+            <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-blue-300 transition-colors" onclick="openLesson('${lesson.id}')">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-gray-900">${idx + 1}. ${lesson.title}</span>
+                <span class="text-gray-400">→</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('lessonModal').classList.remove('hidden');
+      document.getElementById('lessonModal').classList.add('flex');
+    }
+
+    function openLesson(lessonId) {
+      if (!currentModule) return;
+      const lesson = currentModule.lessons.find(l => l.id === lessonId);
+      if (!lesson) return;
+      
+      const currentIdx = currentModule.lessons.findIndex(l => l.id === lessonId);
+      const nextLesson = currentModule.lessons[currentIdx + 1];
+      
+      const container = document.getElementById('modalContent');
+      container.innerHTML = `
+        <button onclick="openModule('${currentModule.id}')" class="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center">
+          <span>← Back to ${currentModule.title}</span>
+        </button>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">${lesson.title}</h2>
+        <p class="text-gray-600 mb-6 leading-relaxed">${lesson.content}</p>
+        <div class="tip-box p-4 rounded mb-6">
+          <p class="text-blue-800 text-sm"><span class="mr-2">💡</span>${lesson.tip}</p>
+        </div>
+        ${nextLesson ? `
+          <button onclick="openLesson('${nextLesson.id}')" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            Next: ${nextLesson.title} →
+          </button>
+        ` : `
+          <button onclick="openModule('${currentModule.id}')" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors">
+            ✓ Module Complete - Back to Lessons
+          </button>
+        `}
+      `;
+    }
+
+    function closeModal() {
+      document.getElementById('lessonModal').classList.add('hidden');
+      document.getElementById('lessonModal').classList.remove('flex');
+      currentModule = null;
+    }
+
+    // Initialize
+    renderLessons();
+    
+    // Close modal on outside click
+    document.getElementById('lessonModal').addEventListener('click', (e) => {
+      if (e.target.id === 'lessonModal') closeModal();
+    });
+  </script>
+</body>
+</html>
