@@ -1,0 +1,16 @@
+{
+  "name": "Chess Grandmaster Path",
+  "short_name": "Chess GM",
+  "description": "Your personalized Duolingo-style guide to mastering chess and achieving a 2000 ELO rating in 3-10 days.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69ac89ec09d6836c4d73fa7d/f1fda4f32_logo.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
