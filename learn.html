@@ -9,35 +9,155 @@
   <style>
     body { 
       font-family: system-ui, -apple-system, sans-serif; 
-      background-color: #0a0a0a; 
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
       color: #fafafa;
+      min-height: 100vh;
     }
-    .lesson-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+    .lesson-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2); }
     .category-btn.active { transform: scale(1.05); }
-    .lesson-item:hover { background-color: #1c1c1c; }
+    .lesson-item:hover { background-color: #2a2a3e; }
     .back-btn:hover { background-color: #1c1c1c; }
-    .tip-box { border-left: 4px solid #3b82f6; background: linear-gradient(to right, #1e3a5f, #0a0a0a); }
+    .tip-box { border-left: 4px solid #6366f1; background: linear-gradient(to right, rgba(99, 102, 241, 0.2), #0a0a0a); }
+    
+    /* Chessboard styles */
+    .chessboard-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .chessboard {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      width: min(320px, 85vw);
+      height: min(320px, 85vw);
+      border: 3px solid #4f46e5;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+    }
+    .square {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: min(2.5rem, 8vw);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .square.light { background-color: #f0d9b5; }
+    .square.dark { background-color: #b58863; }
+    .square.highlight { 
+      background-color: rgba(99, 102, 241, 0.6) !important;
+      box-shadow: inset 0 0 0 3px #6366f1;
+    }
+    .square.teaching-move {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: inset 0 0 0 3px #22c55e; }
+      50% { box-shadow: inset 0 0 0 6px #22c55e, 0 0 20px rgba(34, 197, 94, 0.5); }
+    }
+    
+    /* Buddy Robot styles */
+    .buddy-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .buddy-avatar {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      animation: buddy-bounce 2s infinite;
+    }
+    @keyframes buddy-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .buddy-speech { flex: 1; }
+    .buddy-name {
+      font-weight: 600;
+      color: #818cf8;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+    .buddy-message {
+      color: #e2e8f0;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+    .buddy-message strong { color: #a5b4fc; }
+    .buddy-message em {
+      color: #fbbf24;
+      font-style: normal;
+      font-weight: 600;
+    }
+    
+    /* Progress bar */
+    .progress-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      transition: width 0.5s ease;
+      border-radius: 3px;
+    }
+    
+    .lesson-content {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin: 0.75rem 0;
+    }
+    
+    .completed-badge {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
   </style>
 </head>
 <body class="min-h-screen">
-  <div id="app" class="max-w-md mx-auto py-6 px-4">
+  <div id="app" class="max-w-lg mx-auto py-6 px-4">
     <!-- Back Button -->
-    <button onclick="goBack()" class="back-btn flex items-center text-gray-400 hover:text-white mb-6 transition-colors">
+    <button onclick="goBack()" class="back-btn flex items-center text-gray-400 hover:text-white mb-4 transition-colors">
       <span>← Back</span>
       <span class="ml-2 text-sm text-gray-500">to Chess AI</span>
     </button>
     
     <!-- Header -->
-    <h1 class="text-3xl font-bold mb-2">Learn Chess</h1>
-    <p class="text-gray-400 mb-6">Master chess from beginner to Grandmaster</p>
+    <h1 class="text-3xl font-bold mb-1">Learn Chess</h1>
+    <p class="text-gray-400 mb-4">Master chess with Buddy, your personal AI coach</p>
+    
+    <!-- Progress -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+    </div>
     
     <!-- Category Filter -->
     <div class="flex flex-wrap gap-2 mb-6" id="categoryFilters">
-      <button onclick="filterCategory('all')" class="category-btn active px-4 py-2 rounded-lg bg-white text-black text-sm font-medium transition-all" data-category="all">All</button>
-      <button onclick="filterCategory('beginner')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="beginner">Beginner</button>
-      <button onclick="filterCategory('intermediate')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="intermediate">Intermediate</button>
-      <button onclick="filterCategory('advanced')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="advanced">Advanced</button>
-      <button onclick="filterCategory('master')" class="category-btn px-4 py-2 rounded-lg border border-zinc-700 text-gray-300 text-sm font-medium transition-all hover:border-zinc-500 hover:text-white" data-category="master">Master</button>
+      <button onclick="filterCategory('all')" class="category-btn active px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium transition-all" data-category="all">All</button>
+      <button onclick="filterCategory('beginner')" class="category-btn px-4 py-2 rounded-lg border border-indigo-500/50 text-indigo-300 text-sm font-medium transition-all hover:border-indigo-400 hover:text-indigo-200" data-category="beginner">Beginner</button>
+      <button onclick="filterCategory('intermediate')" class="category-btn px-4 py-2 rounded-lg border border-indigo-500/50 text-indigo-300 text-sm font-medium transition-all hover:border-indigo-400 hover:text-indigo-200" data-category="intermediate">Intermediate</button>
+      <button onclick="filterCategory('advanced')" class="category-btn px-4 py-2 rounded-lg border border-indigo-500/50 text-indigo-300 text-sm font-medium transition-all hover:border-indigo-400 hover:text-indigo-200" data-category="advanced">Advanced</button>
+      <button onclick="filterCategory('master')" class="category-btn px-4 py-2 rounded-lg border border-indigo-500/50 text-indigo-300 text-sm font-medium transition-all hover:border-indigo-400 hover:text-indigo-200" data-category="master">Master</button>
     </div>
     
     <!-- Lessons List -->
@@ -45,11 +165,11 @@
   </div>
   
   <!-- Lesson Modal -->
-  <div id="lessonModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
-    <div class="bg-neutral-900 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-zinc-800">
+  <div id="lessonModal" class="fixed inset-0 bg-black/95 hidden items-start justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-neutral-900 rounded-2xl w-full max-w-lg border border-indigo-500/30 my-4">
       <div class="p-6">
         <button onclick="closeModal()" class="mb-4 text-sm text-gray-400 hover:text-white flex items-center">
-          <span>← Back to modules</span>
+          <span>← Exit Lesson</span>
         </button>
         <div id="modalContent"></div>
       </div>
@@ -57,21 +177,100 @@
   </div>
 
   <script>
+    // Chess piece Unicode characters
+    const PIECES = {
+      'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
+      'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
+    };
+    
+    // Initial board setup
+    const INITIAL_BOARD = [
+      ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+      ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['', '', '', '', '', '', '', ''],
+      ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+      ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+    ];
+    
+    // Comprehensive lessons data with interactive boards and Buddy teachings
     const lessonsData = [
+      // ========== BEGINNER LEVEL ==========
       {
         id: "beginner-1",
         title: "How Pieces Move",
         category: "beginner",
         level: "Beginner",
-        duration: "10 min",
+        duration: "15 min",
         icon: "♟",
         lessons: [
-          { id: "pawn", title: "The Pawn", content: "Pawns move forward one square at a time, but capture diagonally. On their first move, they can move two squares. They promote when reaching the opposite end.", tip: "Always try to control the center with your pawns early in the game." },
-          { id: "knight", title: "The Knight", content: "Knights move in an 'L' shape: two squares in one direction, then one square perpendicular. They can jump over other pieces.", tip: "Knights are strongest in the center of the board." },
-          { id: "bishop", title: "The Bishop", content: "Bishops move diagonally any number of squares. Each player starts with two bishops - one controlling light squares, one controlling dark squares.", tip: "Bishops are most powerful in open positions with long diagonals." },
-          { id: "rook", title: "The Rook", content: "Rooks move horizontally or vertically any number of squares. They are powerful pieces that should be developed in the opening.", tip: "Connect your rooks by clearing the back rank." },
-          { id: "queen", title: "The Queen", content: "The queen combines the powers of rook and bishop, moving any number of squares in any direction. She's your most powerful piece.", tip: "Don't bring your queen out too early - it can be chased by minor pieces." },
-          { id: "king", title: "The King", content: "The king moves one square in any direction. Though slow, protecting your king is the ultimate goal of the game.", tip: "Castle early to get your king to safety." }
+          { 
+            id: "pawn", title: "The Pawn", 
+            buddyMessage: "Hi! I'm <strong>Buddy</strong>! Today we'll learn about the <em>Pawn</em>, the smallest but most numerous piece on the board!",
+            content: "Pawns are the foot soldiers of chess.",
+            moves: [
+              { text: '<strong>Forward:</strong> Move one square forward' },
+              { text: '<strong>Capture:</strong> Take pieces diagonally' },
+              { text: '<strong>Double Move:</strong> Move two squares on first move' },
+              { text: '<strong>Promotion:</strong> Become any piece at the end!' }
+            ],
+            setup: { highlight: [[6, 4]], message: "See the pawn on e2? Let's learn!" },
+            tip: "Control the center with your pawns early!"
+          },
+          { 
+            id: "knight", title: "The Knight",
+            buddyMessage: "Now let's learn about the <em>Knight</em>! They move in an 'L' shape!",
+            content: "Knights are unique pieces.",
+            moves: [
+              { text: '<strong>L-Shape:</strong> 2 squares one way, 1 perpendicular' },
+              { text: '<strong>Jump:</strong> Can jump over other pieces!' },
+              { text: '<strong>Color-Bound:</strong> Always stays on same color' }
+            ],
+            setup: { highlight: [[7, 1]], message: "Watch the knight on b1!" },
+            tip: "Knights are strongest in the center!"
+          },
+          { id: "bishop", title: "The Bishop",
+            buddyMessage: "Let's explore the <em>Bishop</em>! Diagonal masters!",
+            content: "Bishops control diagonals.",
+            moves: [
+              { text: '<strong>Diagonals:</strong> Move diagonally any number of squares' },
+              { text: '<strong>Color-Bound:</strong> One bishop stays on light squares, one on dark' }
+            ],
+            setup: { highlight: [[7, 2]], message: "See the bishop on c1?" },
+            tip: "Bishops are powerful in open positions!"
+          },
+          { id: "rook", title: "The Rook",
+            buddyMessage: "Meet the <em>Rook</em> - the most powerful straight-line piece!",
+            content: "Rooks dominate rows and columns.",
+            moves: [
+              { text: '<strong>Straight Lines:</strong> Move horizontally or vertically' },
+              { text: '<strong>Power:</strong> Very strong but needs open lines' }
+            ],
+            setup: { highlight: [[7, 0]], message: "The rook on a1!" },
+            tip: "Connect your rooks for maximum strength!"
+          },
+          { id: "queen", title: "The Queen",
+            buddyMessage: "Meet the <em>Queen</em> - the most powerful piece!",
+            content: "The Queen combines Rook and Bishop powers.",
+            moves: [
+              { text: '<strong>Combined:</strong> Moves like a rook AND bishop!' },
+              { text: '<strong>Any Direction:</strong> Can move in any direction' }
+            ],
+            setup: { highlight: [[7, 3]], message: "The mighty queen on d1!" },
+            tip: "Don't bring your queen out too early!"
+          },
+          { id: "king", title: "The King",
+            buddyMessage: "Finally, the <em>King</em>! Protect him at all costs!",
+            content: "The King is your most important piece.",
+            moves: [
+              { text: '<strong>One Step:</strong> Move one square in any direction' },
+              { text: '<strong>Most Important:</strong> Game ends if he\'s checkmated!' }
+            ],
+            setup: { highlight: [[7, 4]], message: "The king on e1 - protect him!" },
+            tip: "Castle early to protect your king!"
+          }
         ]
       },
       {
@@ -79,12 +278,81 @@
         title: "Special Moves",
         category: "beginner",
         level: "Beginner",
-        duration: "8 min",
+        duration: "12 min",
         icon: "♚",
         lessons: [
-          { id: "castling", title: "Castling", content: "Castling moves your king two squares toward a rook, then the rook jumps over the king. Requirements: neither piece moved before, no pieces between them, king not in check.", tip: "Castle as soon as possible - it protects your king and activates your rook." },
-          { id: "en-passant", title: "En Passant", content: "If an enemy pawn moves two squares and lands beside your pawn, you can capture it diagonally as if it moved only one square.", tip: "This capture only works immediately after the double pawn move." },
-          { id: "promotion", title: "Pawn Promotion", content: "When a pawn reaches the opposite end of the board, it can be promoted to any piece (almost always a queen for maximum power).", tip: "Always push your passed pawns - promotion is a major advantage." }
+          { 
+            id: "castling", title: "Castling",
+            buddyMessage: "<em>Castling</em> protects your king! It's like a shield!",
+            content: "The king and rook move together.",
+            moves: [
+              { text: '<strong>Requirements:</strong> Neither piece moved, no pieces between' },
+              { text: '<strong>Two Types:</strong> Kingside (O-O) and Queenside (O-O-O)' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', 'k', '', '', 'r'],
+                ['', '', '', '', '', '', 'p', 'p'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', 'P', 'P'],
+                ['', '', '', '', 'K', '', '', 'R']
+              ], 
+              highlight: [[7, 4], [7, 6]], 
+              message: "King goes to g1, rook to f1!" 
+            },
+            tip: "Castle as soon as possible!"
+          },
+          { 
+            id: "en-passant", title: "En Passant",
+            buddyMessage: "<em>En Passant</em> is a tricky pawn capture!",
+            content: "A special pawn capture rule.",
+            moves: [
+              { text: '<strong>When:</strong> Enemy pawn moves two squares beside your pawn' },
+              { text: '<strong>Capture:</strong> Capture diagonally as if it moved one square' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', ''],
+                ['', '', 'p', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', 'P', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'k'],
+              ], 
+              highlight: [[3, 2], [2, 3]], 
+              message: "White can capture en passant!" 
+            },
+            tip: "This prevents pawn bypassing!"
+          },
+          { 
+            id: "promotion", title: "Pawn Promotion",
+            buddyMessage: "When a pawn reaches the end, it transforms! <em>Promotion</em>!",
+            content: "A major advantage when achieved.",
+            moves: [
+              { text: '<strong>Trigger:</strong> Pawn reaches the 8th rank' },
+              { text: '<strong>Transform:</strong> Becomes any piece (usually Queen!)' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', ''],
+                ['P', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'k'],
+              ], 
+              highlight: [[0, 0]], 
+              message: "Pawn is about to queen on a8!" 
+            },
+            tip: "Push your passed pawns!"
+          }
         ]
       },
       {
@@ -92,26 +360,138 @@
         title: "Check & Checkmate",
         category: "beginner",
         level: "Beginner",
-        duration: "12 min",
+        duration: "15 min",
         icon: "⚔",
         lessons: [
-          { id: "check", title: "What is Check?", content: "Your king is in check when an enemy piece can capture it on their next move. You must respond to check - you cannot ignore it.", tip: "Always look for checks when planning your moves." },
-          { id: "checkmate", title: "Checkmate", content: "Checkmate occurs when your king is in check and you have no legal moves to escape. The game ends immediately.", tip: "The goal is checkmate - always aim to trap your opponent's king." },
-          { id: "escape", title: "Escaping Check", content: "Three ways to escape check: 1) Move the king, 2) Block the check, 3) Capture the checking piece.", tip: "First determine if you can move the king, then look for other options." }
+          { 
+            id: "check", title: "What is Check?",
+            buddyMessage: "Let's learn about <em>Check</em>! The enemy threatens your king!",
+            content: "Check is the most urgent situation.",
+            moves: [
+              { text: '<strong>Definition:</strong> Enemy can capture your king' },
+              { text: '<strong>Must Respond:</strong> You cannot ignore check!' },
+              { text: '<strong>Three Options:</strong> Move king, block, or capture attacker' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', 'k'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', 'Q', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[0, 7], [5, 6]], 
+              message: "Queen checks the king!" 
+            },
+            tip: "Always look for checks!"
+          },
+          { 
+            id: "checkmate", title: "Checkmate",
+            buddyMessage: "<em>Checkmate</em> ends the game! The king has no escape!",
+            content: "The ultimate goal of chess.",
+            moves: [
+              { text: '<strong>Definition:</strong> King in check with no legal moves' },
+              { text: '<strong>Immediate End:</strong> Game over!' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', 'k', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', 'Q', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[0, 4], [2, 5]], 
+              message: "Classic checkmate pattern!" 
+            },
+            tip: "Learn common checkmate patterns!"
+          },
+          { 
+            id: "escape", title: "Escaping Check",
+            buddyMessage: "Don't panic! There are three ways to escape check!",
+            content: "Three ways to respond to check.",
+            moves: [
+              { text: '<strong>1. Move King:</strong> Move king to safety' },
+              { text: '<strong>2. Block:</strong> Put piece between attacker and king' },
+              { text: '<strong>3. Capture:</strong> Take the checking piece' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', 'k'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', 'R', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[0, 7], [5, 5]], 
+              message: "Can you capture the rook?" 
+            },
+            tip: "Capture the attacker when possible!"
+          }
         ]
       },
+      // ========== INTERMEDIATE LEVEL ==========
       {
         id: "intermediate-1",
         title: "Opening Principles",
         category: "intermediate",
         level: "Intermediate",
-        duration: "15 min",
+        duration: "20 min",
         icon: "🏰",
         lessons: [
-          { id: "center", title: "Control the Center", content: "The center (d4, e4, d5, e5) is the most important area. Controlling it gives your pieces maximum mobility and freedom.", tip: "Play 1.e4 or 1.d4 to immediately fight for the center." },
-          { id: "develop", title: "Develop Your Pieces", content: "Bring knights and bishops out early. Each piece should be moved only once in the opening if possible.", tip: "Don't move the same piece twice in the opening unless necessary." },
-          { id: "safety", title: "King Safety", content: "Castle early to protect your king. An exposed king is vulnerable to quick attacks and tactical shots.", tip: "If you can't castle, move pawns in front of your king for protection." },
-          { id: "hang", title: "Don't Hang Pieces", content: "Never leave a piece undefended that can be captured. Always check if your move allows the opponent to take one of your pieces.", tip: "Before moving, ask: 'Can my opponent capture anything after this move?'" }
+          { 
+            id: "center", title: "Control the Center",
+            buddyMessage: "<em>Center control</em> is key to a strong opening!",
+            content: "The center (d4, e4, d5, e5) is crucial.",
+            moves: [
+              { text: '<strong>Why Center?</strong> Pieces control more squares from center' },
+              { text: '<strong>e4 & d4:</strong> Best opening moves for center control' }
+            ],
+            setup: { highlight: [[3, 3], [3, 4], [4, 3], [4, 4]], message: "Control these squares!" },
+            tip: "Play 1.e4 or 1.d4!"
+          },
+          { 
+            id: "develop", title: "Develop Your Pieces",
+            buddyMessage: "<em>Piece development</em> brings your army into battle!",
+            content: "Get pieces out efficiently.",
+            moves: [
+              { text: '<strong>Knights First:</strong> Develop before bishops' },
+              { text: '<strong>One Move Each:</strong> Don\'t move same piece twice' }
+            ],
+            setup: { highlight: [[6, 1], [6, 6]], message: "Develop knights to good squares!" },
+            tip: "Each move should develop a piece!"
+          },
+          { 
+            id: "safety", title: "King Safety",
+            buddyMessage: "<em>King safety</em> is crucial! Exposed kings die fast!",
+            content: "Protect your king in the opening.",
+            moves: [
+              { text: '<strong>Castle Early:</strong> Get king to safety' },
+              { text: '<strong>Pawn Moves:</strong> Don\'t move too many pawns in front' }
+            ],
+            setup: { highlight: [[7, 4], [7, 6]], message: "White can castle kingside!" },
+            tip: "Castle as soon as possible!"
+          },
+          { 
+            id: "tempo", title: "Tempo & Development",
+            buddyMessage: "<em>Tempo</em> is time in chess! Don\'t waste your moves!",
+            content: "Understanding tempo.",
+            moves: [
+              { text: '<strong>What is Tempo?</strong> A move is a tempo' },
+              { text: '<strong>Attack:</strong> Attack undeveloped pieces to gain tempo' }
+            ],
+            setup: { highlight: [[2, 6]], message: "Black knight is undeveloped - attack it!" },
+            tip: "Attacking gains tempo!"
+          }
         ]
       },
       {
@@ -119,13 +499,105 @@
         title: "Tactics Basics",
         category: "intermediate",
         level: "Intermediate",
-        duration: "20 min",
+        duration: "25 min",
         icon: "⚡",
         lessons: [
-          { id: "fork", title: "The Fork", content: "A fork attacks two enemy pieces at once, forcing a difficult choice. Knights are excellent for forking enemy pieces.", tip: "Look for moves that attack multiple enemy pieces." },
-          { id: "pin", title: "The Pin", content: "A pin immobilizes an enemy piece because moving it would expose a more valuable piece behind it to capture.", tip: "Pins are powerful - a pinned piece often can't move without losing material." },
-          { id: "skewer", title: "The Skewer", content: "A skewer forces a valuable piece to move, exposing a less valuable piece behind it for capture.", tip: "Attack with your most valuable piece first." },
-          { id: "discovered", title: "Discovered Attack", content: "Moving one piece can reveal another piece behind it attacking an enemy piece. Very powerful when combined with a check.", tip: "Always consider what pieces are behind the one you're moving." }
+          { 
+            id: "fork", title: "The Fork",
+            buddyMessage: "The <em>Fork</em> attacks TWO pieces at once!",
+            content: "A powerful tactical weapon.",
+            moves: [
+              { text: '<strong>One Move:</strong> Attack two pieces simultaneously' },
+              { text: '<strong>Knight Forks:</strong> Very hard to block!' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', 'k', '', '', ''],
+                ['', '', '', '', '', 'p', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', 'N', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', 'K', '', '', ''],
+              ], 
+              highlight: [[3, 4], [1, 5], [0, 4]], 
+              message: "Knight attacks both king and pawn!" 
+            },
+            tip: "Look for knight forks!"
+          },
+          { 
+            id: "pin", title: "The Pin",
+            buddyMessage: "A <em>Pin</em> traps a piece behind another!",
+            content: "Pins restrict opponent's moves.",
+            moves: [
+              { text: '<strong>How Pins Work:</strong> Moving exposes a valuable piece' },
+              { text: '<strong>Absolute:</strong> Illegal to move because it exposes king' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', 'k'],
+                ['', '', '', '', '', '', '', 'r'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'R'],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[0, 7], [1, 7], [6, 7]], 
+              message: "Rook pins the enemy rook!" 
+            },
+            tip: "Use pins to restrict pieces!"
+          },
+          { 
+            id: "skewer", title: "The Skewer",
+            buddyMessage: "A <em>Skewer</em> is like a pin but meaner!",
+            content: "Forces pieces to move.",
+            moves: [
+              { text: '<strong>Attack Leader:</strong> Hit valuable piece, forcing move' },
+              { text: '<strong>Expose:</strong> Piece behind becomes vulnerable' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', 'k'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'Q'],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[0, 7], [6, 7]], 
+              message: "Queen skewers king to rook!" 
+            },
+            tip: "Skewers with rooks are devastating!"
+          },
+          { 
+            id: "discovered", title: "Discovered Attack",
+            buddyMessage: "<em>Discovery</em> reveals a hidden attack!",
+            content: "Moving one piece reveals another.",
+            moves: [
+              { text: '<strong>Hidden Threat:</strong> One piece blocks another\'s attack' },
+              { text: '<strong>Move Blocker:</strong> The hidden piece attacks!' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', 'k', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', 'B', ''],
+                ['', '', '', '', '', '', 'K', 'R'],
+              ], 
+              highlight: [[6, 6], [1, 7]], 
+              message: "Move bishop, discover rook attack!" 
+            },
+            tip: "Look for hidden attacks!"
+          }
         ]
       },
       {
@@ -133,14 +605,109 @@
         title: "Endgame Essentials",
         category: "intermediate",
         level: "Intermediate",
-        duration: "18 min",
+        duration: "20 min",
         icon: "👑",
         lessons: [
-          { id: "kp", title: "King and Pawn vs King", content: "The key is to get your pawn to the sixth rank, then bring your king in front of it to support promotion.", tip: "Always try to get your king in front of your passed pawn." },
-          { id: "opp", title: "The Opposition", content: "When kings face each other with an odd number of squares between them, the player who is NOT to move has the advantage.", tip: "Use opposition to push your opponent's king to the edge of the board." },
-          { id: "rook-end", title: "Basic Rook Endgames", content: "The defending king should stay in front of the pawn. The attacking side needs to create a breakthrough.", tip: "Rooks work best behind passed pawns - support them from behind." }
+          { 
+            id: "king-pawn", title: "King and Pawn vs King",
+            buddyMessage: "Fundamental <em>endgame</em>! King and pawn vs king!",
+            content: "The most basic endgame.",
+            moves: [
+              { text: '<strong>Key:</strong> Get king IN FRONT of pawn' },
+              { text: '<strong>Opposition:</strong> Kings face with one square between' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', 'k', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', 'P', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', 'K', '', '', ''],
+              ], 
+              highlight: [[4, 4], [0, 4]], 
+              message: "White to move - win this!" 
+            },
+            tip: "King in front wins!"
+          },
+          { 
+            id: "opposition", title: "The Opposition",
+            buddyMessage: "<em>The Opposition</em> is about who blocks!",
+            content: "A key endgame concept.",
+            moves: [
+              { text: '<strong>Direct:</strong> Kings on same line with one square between' },
+              { text: '<strong>Wins:</strong> Player WITHOUT the move wins!' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', 'k', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', 'K', '', '', '', ''],
+              ], 
+              highlight: [[6, 2], [8, 3]], 
+              message: "White to move - give up opposition!" 
+            },
+            tip: "Step aside to gain opposition!"
+          },
+          { 
+            id: "rook-endgame", title: "Basic Rook Endgames",
+            buddyMessage: "Rook endgames are <em>critical</em>! Master them!",
+            content: "Essential rook endgame positions.",
+            moves: [
+              { text: '<strong>Rook on 7th:</strong> Can trap enemy rook' },
+              { text: '<strong>Lucena:</strong> Key winning position - bridge technique' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', 'k', ''],
+                ['', '', '', '', '', '', 'R', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[2, 6], [1, 7]], 
+              message: "Rook on 7th attacks king!" 
+            },
+            tip: "Keep rooks active!"
+          },
+          { 
+            id: "opposite-bishops", title: "Opposite-Colored Bishops",
+            buddyMessage: "Special <em>drawish</em> endgame! Usually a draw!",
+            content: "Understanding opposite bishops.",
+            moves: [
+              { text: '<strong>Different Colors:</strong> Bishops can never meet' },
+              { text: '<strong>Drawish:</strong> Very hard to win!' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', 'b', '', '', '', 'k'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[0, 3]], 
+              message: "Opposite bishops - usually draws!" 
+            },
+            tip: "Defend carefully with opposite bishops!"
+          }
         ]
       },
+      // ========== ADVANCED LEVEL ==========
       {
         id: "advanced-1",
         title: "Positional Play",
@@ -149,10 +716,89 @@
         duration: "25 min",
         icon: "🎯",
         lessons: [
-          { id: "space", title: "Space Advantage", content: "Having more space restricts your opponent's pieces and limits their options. Expand your territory gradually.", tip: "Space advantage often converts to tactical opportunities." },
-          { id: "weak", title: "Weak Squares", content: "Squares that cannot be defended by pawns are weak. Control these outposts for long-term advantage.", tip: "Knights are best on outpost squares - weak squares they can occupy and defend." },
-          { id: "bishop-gb", title: "Good vs Bad Bishops", content: "A bishop is 'good' if it controls many squares and 'bad' if it's blocked by its own pawns.", tip: "Keep your pawns on the same color squares as your bishop to avoid blocking it." },
-          { id: "prop", title: "Prophylaxis", content: "Prevent your opponent's plans before executing your own. Ask: 'What does my opponent want to do?'", tip: "The best move often prevents your opponent's best move." }
+          { 
+            id: "space", title: "Space Advantage",
+            buddyMessage: "<em>Space</em> is freedom! More space = more options!",
+            content: "Space is a key positional factor.",
+            moves: [
+              { text: '<strong>More Squares:</strong> Your pieces have more options' },
+              { text: '<strong>Cramped:</strong> Opponent\'s pieces are restricted' }
+            ],
+            setup: { 
+              board: [
+                ['r', 'n', 'b', '', 'k', 'b', 'n', 'r'],
+                ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', 'P', 'P', '', '', ''],
+                ['', '', '', 'P', 'P', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['P', 'P', 'P', '', '', 'P', 'P', 'P'],
+                ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+              ], 
+              highlight: [[3, 3], [3, 4], [4, 3], [4, 4]], 
+              message: "White controls more space!" 
+            },
+            tip: "Create pawn breaks to use space!"
+          },
+          { 
+            id: "weak-squares", title: "Weak Squares",
+            buddyMessage: "<em>Weak squares</em> are holes - exploit them!",
+            content: "Understanding weaknesses.",
+            moves: [
+              { text: '<strong>What:</strong> Squares that can\'t be defended by pawns' },
+              { text: '<strong>Outpost:</strong> Knight on weak square is powerful' }
+            ],
+            setup: { 
+              board: [
+                ['r', '', 'b', '', 'k', '', '', 'r'],
+                ['', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                ['n', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                ['R', '', 'B', 'Q', 'K', 'B', 'N', 'R']
+              ], 
+              highlight: [[2, 0]], 
+              message: "Knight on outpost - great position!" 
+            },
+            tip: "Create outposts with pawn advances!"
+          },
+          { 
+            id: "good-bad-bishops", title: "Good vs Bad Bishops",
+            buddyMessage: "Not all bishops are equal! <em>Good vs bad</em>!",
+            content: "Bishop quality matters.",
+            moves: [
+              { text: '<strong>Good:</strong> Controls many squares, especially center' },
+              { text: '<strong>Bad:</strong> Blocked by own pawns' }
+            ],
+            setup: { 
+              board: [
+                ['r', '', 'b', '', 'k', '', '', 'r'],
+                ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                ['R', '', 'B', 'Q', 'K', 'B', '', 'R']
+              ], 
+              highlight: [[7, 2], [7, 5]], 
+              message: "Both bishops blocked by own pawns!" 
+            },
+            tip: "Keep good bishop, trade bad one!"
+          },
+          { 
+            id: "prophylaxis", title: "Prophylaxis",
+            buddyMessage: "<em>Prophylaxis</em> prevents opponent\'s plans!",
+            content: "Thinking preventively.",
+            moves: [
+              { text: '<strong>Prevent:</strong> Stop opponent\'s plans before execution' },
+              { text: '<strong>Strengthen:</strong> Make position harder to attack' }
+            ],
+            setup: { highlight: [], message: "What does opponent want? Stop it!" },
+            tip: "Ask: what does my opponent want?"
+          }
         ]
       },
       {
@@ -160,38 +806,148 @@
         title: "Attack Patterns",
         category: "advanced",
         level: "Advanced",
-        duration: "22 min",
+        duration: "25 min",
         icon: "⚔",
         lessons: [
-          { id: "minor", title: "Minor Piece Attack", content: "Knights and bishops can create strong attacks on the enemy king, especially when working together harmoniously.", tip: "Two minor pieces in attacking position can be as deadly as a queen." },
-          { id: "storm", title: "Pawn Storm", content: "Advancing pawns toward the enemy king can create weaknesses and entry points for your pieces.", tip: "Pawn storms are most effective after castling on the same side." },
-          { id: "sac", title: "Positional Sacrifices", content: "Sometimes giving up material creates long-term positional advantages like open lines, king safety, or initiative.", tip: "Material isn't everything - activity and king safety matter too." }
+          { 
+            id: "minor-piece-attack", title: "Minor Piece Attack",
+            buddyMessage: "Knights and bishops deliver deadly <em>attacks</em>!",
+            content: "Attacking with minor pieces.",
+            moves: [
+              { text: '<strong>Outpost:</strong> Knight on advanced square is deadly' },
+              { text: '<strong>Exchange:</strong> Minor for rook can open attack' }
+            ],
+            setup: { 
+              board: [
+                ['r', '', 'b', 'q', 'k', '', 'n', ''],
+                ['p', 'p', 'p', '', 'p', 'p', 'p', 'p'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', 'B', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', 'N', '', ''],
+                ['P', 'P', 'P', 'P', '', 'P', 'P', 'P'],
+                ['R', '', '', 'Q', 'K', '', '', 'R']
+              ], 
+              highlight: [[5, 5], [3, 3]], 
+              message: "Knight and bishop coordinate!" 
+            },
+            tip: "Minor pieces attack first!"
+          },
+          { 
+            id: "pawn-storm", title: "Pawn Storm",
+            buddyMessage: "A <em>pawn storm</em> attacks with many pawns!",
+            content: "Using pawns in attacks.",
+            moves: [
+              { text: '<strong>Create:</strong> Pawns create weaknesses' },
+              { text: '<strong>Open:</strong> Smash open lines for pieces' }
+            ],
+            setup: { 
+              board: [
+                ['r', '', 'b', 'q', 'k', '', 'n', 'r'],
+                ['', 'p', '', 'p', 'p', 'p', 'p', 'p'],
+                ['p', '', 'P', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', 'P', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['P', 'P', '', 'P', 'P', 'P', 'P', 'P'],
+                ['R', '', 'B', 'Q', 'K', '', 'N', 'R']
+              ], 
+              highlight: [[2, 2], [4, 2]], 
+              message: "Pawns advancing, creating weaknesses!" 
+            },
+            tip: "Storm pawns against castled kings!"
+          },
+          { 
+            id: "sacrifice", title: "Positional Sacrifices",
+            buddyMessage: "<em>Sacrifices</em> can give long-term advantage!",
+            content: "Understanding positional sacrifices.",
+            moves: [
+              { text: '<strong>Long-term:</strong> Give material for lasting advantage' },
+              { text: '<strong>Initiative:</strong> Sacrifice for powerful initiative' }
+            ],
+            setup: { highlight: [], message: "Sometimes giving up material wins!" },
+            tip: "Sacrifice for initiative!"
+          },
+          { 
+            id: "zugzwang", title: "Zugzwang",
+            buddyMessage: "<em>Zugzwang</em> - every move makes it worse!",
+            content: "The dreaded zugzwang.",
+            moves: [
+              { text: '<strong>No Good:</strong> Every move worsens position' },
+              { text: '<strong>Endgames:</strong> Most common in simplified positions' }
+            ],
+            setup: { 
+              board: [
+                ['k', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[0, 0], [7, 7]], 
+              message: "Kings face off - who wins?" 
+            },
+            tip: "Avoid giving opponent the move!"
+          }
         ]
       },
-      {
-        id: "advanced-3",
-        title: "Deep Calculation",
-        category: "advanced",
-        level: "Advanced",
-        duration: "20 min",
-        icon: "🧠",
-        lessons: [
-          { id: "cand", title: "Candidate Moves", content: "When calculating, first identify all plausible moves (candidates), then analyze each one deeply.", tip: "Don't waste time analyzing bad moves - focus on 2-3 best candidates." },
-          { id: "forcing", title: "Forcing Moves", content: "Checks, captures, and threats force the opponent's response and make calculation easier.", tip: "Start your calculations with forcing moves." },
-          { id: "verif", title: "Verification", content: "After finding a move, verify it's the best by checking alternatives. Did you miss something better?", tip: "Always ask: 'Is there a better move?' before committing." }
-        ]
-      },
+      // ========== MASTER LEVEL ==========
       {
         id: "master-1",
         title: "Master Openings",
         category: "master",
         level: "Master",
-        duration: "30 min",
+        duration: "35 min",
         icon: "📚",
         lessons: [
-          { id: "e4", title: "1.e4 Openings", content: "1.e4 leads to sharp, tactical play. Main lines include the Ruy Lopez, Italian Game, Sicilian Defense, and King's Gambit.", tip: "1.e4 fights for central space and opens lines for queen and bishop." },
-          { id: "d4", title: "1.d4 Openings", content: "1.d4 leads to strategic play. Main lines include the Queen's Gambit, Nimzo-Indian, and King's Indian Defense.", tip: "1.d4 builds a solid pawn center and prepares piece development." },
-          { id: "flank", title: "Flank Openings", content: "1.c4 (English) and 1.b3 are flexible alternatives that avoid main theory early.", tip: "Flank openings can transpose to main lines or lead to unique positions." }
+          { 
+            id: "e4-openings", title: "1.e4 Openings",
+            buddyMessage: "<em>Master openings</em>! 1.e4 is sharp and aggressive!",
+            content: "The 1.e4 family.",
+            moves: [
+              { text: '<strong>Italian:</strong> 1.e4 e5 2.Nf3 Nc6 3.Bc4' },
+              { text: '<strong>Sicilian:</strong> 1.e4 c5 - most popular!' },
+              { text: '<strong>Spanish:</strong> 1.e4 e5 2.Nf3 Nc6 3.Bb5 - Ruy Lopez' }
+            ],
+            setup: { highlight: [[6, 4]], message: "1.e4 - the classic!" },
+            tip: "Study plans, not just move orders!"
+          },
+          { 
+            id: "d4-openings", title: "1.d4 Openings",
+            buddyMessage: "1.d4 is solid and <em>positional</em>!",
+            content: "The 1.d4 family.",
+            moves: [
+              { text: '<strong>Queen\'s Gambit:</strong> 1.d4 d5 2.c4' },
+              { text: '<strong>Indian:</strong> Nf6 setups against d4' }
+            ],
+            setup: { highlight: [[6, 3]], message: "1.d4 - solid foundation!" },
+            tip: "Learn typical plans for both sides!"
+          },
+          { 
+            id: "hypermodern", title: "Hypermodern Openings",
+            buddyMessage: "The <em>hypermodern</em> approach - let center form, then attack!",
+            content: "Hypermodern philosophy.",
+            moves: [
+              { text: '<strong>Let:</strong> Allow opponent to occupy center' },
+              { text: '<strong>Undermine:</strong> Then attack with pawn breaks' }
+            ],
+            setup: { highlight: [], message: "Control from the flanks!" },
+            tip: "Know when to strike at center!"
+          },
+          { 
+            id: "opening-traps", title: "Opening Traps",
+            buddyMessage: "<em>Traps</em> win quick games - but avoid falling in!",
+            content: "Common opening traps.",
+            moves: [
+              { text: '<strong>Fool\'s Mate:</strong> Fastest checkmate in 2 moves!' },
+              { text: '<strong>Scholar\'s:</strong> Queen and bishop battery' }
+            ],
+            setup: { highlight: [], message: "Watch for traps!" },
+            tip: "Know traps to avoid them!"
+          }
         ]
       },
       {
@@ -199,32 +955,174 @@
         title: "Master Endgames",
         category: "master",
         level: "Master",
-        duration: "35 min",
+        duration: "40 min",
         icon: "🏆",
         lessons: [
-          { id: "lucena", title: "Advanced Rook Endgames", content: "Key positions include Lucena and Philidor defenses. Understanding these is essential for master-level play.", tip: "The Lucena position can be won by 'checking distance' - bridge building technique." },
-          { id: "bn", title: "Bishop vs Knight", content: "Bishops excel in open positions with long diagonals. Knights excel in blocked positions and outpost squares.", tip: "Evaluate which piece suits the position before trading." },
-          { id: "qend", title: "Queen Endgames", content: "Queen vs pawn on the 7th rank requires precise technique. The defending king must stay in front.", tip: "Queen vs lone king is always winning - mate in at most 10 moves." }
+          { 
+            id: "lucena", title: "The Lucena Position",
+            buddyMessage: "<em>Lucena</em> is THE winning rook endgame!",
+            content: "Master the Lucena position.",
+            moves: [
+              { text: '<strong>Setup:</strong> King ahead of pawn, rook blocking' },
+              { text: '<strong>Bridge:</strong> Building technique to win' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', 'k', ''],
+                ['', '', '', '', '', '', 'R', ''],
+                ['', '', '', '', 'P', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', 'K', '', '', ''],
+              ], 
+              highlight: [[4, 4], [3, 6]], 
+              message: "Winning position - build a bridge!" 
+            },
+            tip: "Bridge technique wins!"
+          },
+          { 
+            id: "bn-vs-n", title: "Bishop vs Knight",
+            buddyMessage: "Bishop vs <em>Knight</em> - subtle differences!",
+            content: "Understanding B vs N.",
+            moves: [
+              { text: '<strong>Bishop:</strong> Long-range, controls both colors eventually' },
+              { text: '<strong>Knight:</strong> Central, jumps, better in closed positions' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', 'k', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', 'B', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', 'N', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', 'K'],
+              ], 
+              highlight: [[2, 5], [4, 6]], 
+              message: "B vs N - which is better?" },
+            tip: "Open positions favor bishops!"
+          },
+          { 
+            id: "queen-endgame", title: "Queen Endgames",
+            buddyMessage: "<em>Queen endgames</em> - tricky to win and draw!",
+            content: "Queen endgame mastery.",
+            moves: [
+              { text: '<strong>Queen vs Pawn:</strong> Can be tricky' },
+              { text: '<strong>Perpetual:</strong> Use checks to draw' }
+            ],
+            setup: { 
+              board: [
+                ['k', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['K', '', '', '', '', '', '', 'Q'],
+              ], 
+              highlight: [[7, 7], [0, 0]], 
+              message: "Queen vs King - mate in 10!" 
+            },
+            tip: "Queen\'s range makes mating easy!"
+          },
+          { 
+            id: "triangulation", title: "Triangulation",
+            buddyMessage: "<em>Triangulation</em> gives opponent the move!",
+            content: "Mastering triangulation.",
+            moves: [
+              { text: '<strong>Goal:</strong> Force opponent to move badly' },
+              { text: '<strong>King:</strong> Move king in triangle to lose tempo' }
+            ],
+            setup: { 
+              board: [
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', 'k', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', 'K', '', '', '', ''],
+              ], 
+              highlight: [[6, 2], [8, 3]], 
+              message: "Triangulate to win opposition!" 
+            },
+            tip: "Practice king triangulation!"
+          }
         ]
       },
       {
         id: "master-3",
-        title: "Psychology & Time",
+        title: "Psychology & Strategy",
         category: "master",
         level: "Master",
-        duration: "25 min",
+        duration: "30 min",
         icon: "⏱",
         lessons: [
-          { id: "time", title: "Time Pressure", content: "When low on time, simplify to safer positions. Avoid complex tactics you might miscalculate.", tip: "Use increments wisely - increment at move 30 helps you reach move 40." },
-          { id: "tilt", title: "Emotional Control", content: "Avoid tilting after mistakes. A lost position can still be saved; a lost mindset cannot.", tip: "Take breaks between games to reset your mental state." },
-          { id: "prep", title: "Opening Preparation", content: "At master level, deep opening knowledge is essential. Prepare specific lines for expected opponents.", tip: "Know the ideas behind moves, not just the move order." }
+          { 
+            id: "time-pressure", title: "Time Management",
+            buddyMessage: "<em>Time pressure</em> kills games! Manage your clock!",
+            content: "Mastering time management.",
+            moves: [
+              { text: '<strong>Budget:</strong> Allocate time per phase' },
+              { text: '<strong>Simplify:</strong> When low, play simpler moves' }
+            ],
+            setup: { highlight: [], message: "Clock ticking - manage wisely!" },
+            tip: "Simple moves under time pressure!"
+          },
+          { 
+            id: "emotional", title: "Emotional Control",
+            buddyMessage: "Chess is <em>mental</em>! Your emotions affect play!",
+            content: "Developing mental strength.",
+            moves: [
+              { text: '<strong>Avoid Tilt:</strong> Don\'t let mistakes affect next moves' },
+              { text: '<strong>Reset:</strong> Take a breath after blunders' }
+            ],
+            setup: { highlight: [], message: "Stay calm!" },
+            tip: "A lost position can be saved!"
+          },
+          { 
+            id: "deep-analysis", title: "Deep Calculation",
+            buddyMessage: "Train your <em>calculation</em>! This separates masters!",
+            content: "Improving calculation depth.",
+            moves: [
+              { text: '<strong>Candidates:</strong> List all possible moves' },
+              { text: '<strong>Forcing:</strong> Focus on checks, captures, threats first' }
+            ],
+            setup: { highlight: [], message: "Calculate 5 moves deep!" },
+            tip: "Check all checks, captures, threats!"
+          },
+          { 
+            id: "preparation", title: "Opening Preparation",
+            buddyMessage: "<em>Preparation</em> gives you an edge from move one!",
+            content: "Advanced opening prep.",
+            moves: [
+              { text: '<strong>Repertoire:</strong> Build consistent openings' },
+              { text: '<strong>Novelties:</strong> Prepare surprises' }
+            ],
+            setup: { highlight: [], message: "Know your openings deeply!" },
+            tip: "Consistency builds confidence!"
+          }
         ]
       }
     ];
-
+    
     let currentCategory = 'all';
     let currentModule = null;
-
+    let completedLessons = JSON.parse(localStorage.getItem('completedLessons') || '[]');
+    
+    function updateProgress() {
+      const total = lessonsData.reduce((sum, module) => sum + module.lessons.length, 0);
+      const completed = completedLessons.length;
+      const percent = Math.round((completed / total) * 100);
+      document.getElementById('progressBar').style.width = percent + '%';
+    }
+    
     function goBack() {
       window.location.href = '/';
     }
@@ -234,18 +1132,26 @@
       document.querySelectorAll('.category-btn').forEach(btn => {
         if (btn.dataset.category === category) {
           btn.classList.add('active');
-          btn.classList.remove('bg-white', 'border', 'border-gray-300', 'text-gray-700');
-          if (category === 'beginner') btn.classList.add('bg-green-600', 'text-white');
-          else if (category === 'intermediate') btn.classList.add('bg-blue-600', 'text-white');
-          else if (category === 'advanced') btn.classList.add('bg-purple-600', 'text-white');
-          else if (category === 'master') btn.classList.add('bg-red-600', 'text-white');
-          else btn.classList.add('bg-gray-900', 'text-white');
+          btn.classList.remove('border-indigo-500/50', 'text-indigo-300');
+          btn.classList.add('bg-indigo-600', 'text-white');
         } else {
-          btn.classList.remove('active', 'bg-green-600', 'bg-blue-600', 'bg-purple-600', 'bg-red-600', 'bg-gray-900', 'text-white');
-          btn.classList.add('bg-white', 'border', 'border-gray-300', 'text-gray-700');
+          btn.classList.remove('active', 'bg-indigo-600', 'text-white');
+          btn.classList.add('border-indigo-500/50', 'text-indigo-300');
         }
       });
       renderLessons();
+    }
+
+    function isLessonCompleted(lessonId) {
+      return completedLessons.includes(lessonId);
+    }
+
+    function markLessonCompleted(lessonId) {
+      if (!completedLessons.includes(lessonId)) {
+        completedLessons.push(lessonId);
+        localStorage.setItem('completedLessons', JSON.stringify(completedLessons));
+        updateProgress();
+      }
     }
 
     function renderLessons() {
@@ -254,34 +1160,45 @@
         : lessonsData.filter(l => l.category === currentCategory);
       
       const container = document.getElementById('lessonsList');
-      container.innerHTML = filtered.map(lesson => `
-        <div class="lesson-card bg-neutral-900 rounded-lg p-4 border border-zinc-800 transition-all duration-200 cursor-pointer" onclick="openModule('${lesson.id}')">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center">
-              <span class="text-3xl mr-3">${lesson.icon}</span>
-              <div>
-                <h3 class="font-semibold text-white">${lesson.title}</h3>
-                <p class="text-xs text-gray-500">${lesson.level} • ${lesson.duration}</p>
+      container.innerHTML = filtered.map(lesson => {
+        const completedCount = lesson.lessons.filter(l => isLessonCompleted(l.id)).length;
+        const totalCount = lesson.lessons.length;
+        const allCompleted = completedCount === totalCount;
+        
+        return `
+          <div class="lesson-card bg-neutral-800/80 rounded-xl p-4 border border-indigo-500/20 transition-all duration-300 cursor-pointer ${allCompleted ? 'ring-2 ring-green-500/50' : ''}" onclick="openModule('${lesson.id}')">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center">
+                <span class="text-3xl mr-3">${lesson.icon}</span>
+                <div>
+                  <h3 class="font-semibold text-white text-lg">${lesson.title}</h3>
+                  <p class="text-xs text-gray-500">${lesson.level} • ${lesson.duration}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                ${allCompleted ? `
+                  <span class="completed-badge text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                    <span>✓</span> Complete
+                  </span>
+                ` : `
+                  <span class="text-xs px-2 py-1 rounded-full bg-indigo-900/50 text-indigo-300">
+                    ${completedCount}/${totalCount}
+                  </span>
+                `}
               </div>
             </div>
-            <span class="text-xs px-2 py-1 rounded-full ${
-              lesson.category === 'beginner' ? 'bg-green-900/50 text-green-400' :
-              lesson.category === 'intermediate' ? 'bg-blue-900/50 text-blue-400' :
-              lesson.category === 'advanced' ? 'bg-purple-900/50 text-purple-400' :
-              'bg-red-900/50 text-red-400'
-            }">${lesson.lessons.length} lessons</span>
+            <div class="space-y-2 mt-3">
+              ${lesson.lessons.slice(0, 3).map(l => `
+                <div class="lesson-item px-3 py-2 rounded-lg bg-neutral-900/50 text-sm ${isLessonCompleted(l.id) ? 'text-green-400' : 'text-gray-300'} flex items-center justify-between">
+                  <span>${l.title}</span>
+                  ${isLessonCompleted(l.id) ? '<span class="text-green-500">✓</span>' : '<span class="text-gray-600">→</span>'}
+                </div>
+              `).join('')}
+            </div>
+            ${lesson.lessons.length > 3 ? `<p class="text-xs text-indigo-400 mt-3 text-center">+ ${lesson.lessons.length - 3} more lessons</p>` : ''}
           </div>
-          <div class="space-y-2 mt-3">
-            ${lesson.lessons.slice(0, 3).map(l => `
-              <div class="lesson-item px-3 py-2 rounded bg-neutral-800 text-sm text-gray-300 flex items-center justify-between">
-                <span>${l.title}</span>
-                <span class="text-gray-500">→</span>
-              </div>
-            `).join('')}
-          </div>
-          ${lesson.lessons.length > 3 ? `<p class="text-xs text-gray-500 mt-2 text-center">+ ${lesson.lessons.length - 3} more lessons</p>` : ''}
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function openModule(moduleId) {
@@ -291,14 +1208,17 @@
       currentModule = module;
       const container = document.getElementById('modalContent');
       container.innerHTML = `
-        <h2 class="text-xl font-bold text-white mb-2">${module.title}</h2>
+        <h2 class="text-xl font-bold text-white mb-2">${module.icon} ${module.title}</h2>
         <p class="text-gray-400 text-sm mb-4">${module.level} • ${module.duration}</p>
         <div class="space-y-3">
           ${module.lessons.map((lesson, idx) => `
-            <div class="border border-zinc-700 rounded-lg p-4 cursor-pointer hover:border-zinc-500 transition-colors" onclick="openLesson('${lesson.id}')">
+            <div class="border ${isLessonCompleted(lesson.id) ? 'border-green-500/30 bg-green-900/10' : 'border-indigo-500/30'} bg-neutral-800/50 rounded-xl p-4 cursor-pointer hover:border-indigo-400 transition-colors" onclick="event.stopPropagation(); openLesson('${lesson.id}')">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-200">${idx + 1}. ${lesson.title}</span>
-                <span class="text-gray-500">→</span>
+                <div class="flex items-center gap-3">
+                  <span class="w-8 h-8 rounded-full ${isLessonCompleted(lesson.id) ? 'bg-green-600' : 'bg-indigo-600'} flex items-center justify-center text-white text-sm font-bold">${idx + 1}</span>
+                  <span class="font-medium ${isLessonCompleted(lesson.id) ? 'text-green-300' : 'text-gray-200'}">${lesson.title}</span>
+                </div>
+                ${isLessonCompleted(lesson.id) ? '<span class="text-green-500">✓ Completed</span>' : '<span class="text-gray-500">→</span>'}
               </div>
             </div>
           `).join('')}
@@ -315,27 +1235,113 @@
       
       const currentIdx = currentModule.lessons.findIndex(l => l.id === lessonId);
       const nextLesson = currentModule.lessons[currentIdx + 1];
+      const isCompleted = isLessonCompleted(lesson.id);
+      
+      const board = lesson.setup?.board || JSON.parse(JSON.stringify(INITIAL_BOARD));
+      const highlight = lesson.setup?.highlight || [];
       
       const container = document.getElementById('modalContent');
       container.innerHTML = `
-        <button onclick="openModule('${currentModule.id}')" class="mb-4 text-sm text-gray-400 hover:text-white flex items-center">
-          <span>← Back to ${currentModule.title}</span>
-        </button>
-        <h2 class="text-xl font-bold text-white mb-4">${lesson.title}</h2>
-        <p class="text-gray-300 mb-6 leading-relaxed">${lesson.content}</p>
-        <div class="tip-box p-4 rounded mb-6">
-          <p class="text-blue-400 text-sm"><span class="mr-2">💡</span>${lesson.tip}</p>
+        <!-- Buddy Teaching Section -->
+        <div class="buddy-container">
+          <div class="buddy-avatar">🤖</div>
+          <div class="buddy-speech">
+            <div class="buddy-name">Buddy says:</div>
+            <div class="buddy-message">${lesson.buddyMessage}</div>
+          </div>
         </div>
-        ${nextLesson ? `
-          <button onclick="openLesson('${nextLesson.id}')" class="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-gray-100 transition-colors">
-            Next: ${nextLesson.title} →
+        
+        <!-- Chessboard -->
+        <div class="chessboard-container mb-4">
+          <div class="chessboard" id="lessonBoard"></div>
+          ${lesson.setup?.message ? `<p class="text-indigo-300 text-sm text-center mt-2">${lesson.setup.message}</p>` : ''}
+        </div>
+        
+        <!-- Lesson Content -->
+        <div class="lesson-content">
+          <h3 class="text-lg font-semibold text-white mb-3">${lesson.title}</h3>
+          <p class="text-gray-300 mb-4">${lesson.content}</p>
+          <div class="space-y-2">
+            ${lesson.moves.map(m => `
+              <div class="flex items-start gap-2">
+                <span class="text-indigo-400 mt-1">•</span>
+                <span class="text-gray-200">${m.text}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <!-- Tip Box -->
+        <div class="tip-box p-4 rounded-lg mb-4">
+          <p class="text-indigo-300 text-sm"><span class="mr-2">💡</span>${lesson.tip}</p>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="text-center text-gray-500 text-sm mb-4">
+          Lesson ${currentIdx + 1} of ${currentModule.lessons.length}
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="space-y-3">
+          ${nextLesson ? `
+            <button onclick="openLesson('${nextLesson.id}')" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2">
+              ${isCompleted ? 'Review: ' : ''} Next: ${nextLesson.title}
+              <span>→</span>
+            </button>
+          ` : `
+            <button onclick="completeModule()" class="w-full bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-500 transition-colors flex items-center justify-center gap-2">
+              ✓ Module Complete - Back to Lessons
+            </button>
+          `}
+          <button onclick="markLessonCompleted('${lesson.id}'); renderLessons(); openModule('${currentModule.id}')" class="w-full ${isCompleted ? 'bg-green-900/50 text-green-300' : 'bg-neutral-700 text-gray-300'} font-medium py-2 rounded-xl hover:bg-neutral-600 transition-colors">
+            ${isCompleted ? '✓ Marked as Completed' : 'Mark as Completed'}
           </button>
-        ` : `
-          <button onclick="openModule('${currentModule.id}')" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-500 transition-colors">
-            ✓ Module Complete - Back to Lessons
-          </button>
-        `}
+        </div>
       `;
+      
+      // Render chessboard
+      renderBoard('lessonBoard', board, highlight);
+    }
+    
+    function renderBoard(elementId, board, highlight = []) {
+      const container = document.getElementById(elementId);
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement('div');
+          const isLight = (row + col) % 2 === 0;
+          square.className = `square ${isLight ? 'light' : 'dark'}`;
+          
+          const piece = board[row][col];
+          if (piece) {
+            square.textContent = PIECES[piece] || '';
+            if (piece === piece.toUpperCase()) {
+              square.style.color = '#1a1a1a';
+            } else {
+              square.style.color = '#fafafa';
+            }
+          }
+          
+          // Check if square should be highlighted
+          const shouldHighlight = highlight.some(([r, c]) => r === row && c === col);
+          if (shouldHighlight) {
+            square.classList.add('teaching-move');
+          }
+          
+          container.appendChild(square);
+        }
+      }
+    }
+
+    function completeModule() {
+      if (currentModule) {
+        currentModule.lessons.forEach(l => markLessonCompleted(l.id));
+      }
+      closeModal();
+      renderLessons();
     }
 
     function closeModal() {
@@ -345,6 +1351,7 @@
     }
 
     // Initialize
+    updateProgress();
     renderLessons();
     
     // Close modal on outside click
